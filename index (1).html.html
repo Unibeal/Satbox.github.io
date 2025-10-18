@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satbox Streaming Premium</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    <style>
+        /* Votre CSS existant reste inchangé */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html, body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Header style Satbox */
+        .header {
+            background: linear-gradient(to bottom, #000000, #111111);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #00ff88;
+            box-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 36px;
+            font-weight: 900;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
+        }
+        
+        .logo span {
+            color: #ffffff;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .nav-item {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: #00ff88;
+            color: #000000;
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 8px 15px;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            width: 200px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ff88, #00cc70);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        /* Main content layout */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #111111;
+            padding: 20px 0;
+            border-right: 1px solid #222222;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        .sidebar-title {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #00ff88;
+            border-bottom: 1px solid #222222;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            color: #ffffff;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid #00ff88;
+        }
+        
+        .sidebar-item i {
+            color: #00ff88;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Content area */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background: #000000;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .section-subtitle {
+            font-size: 16px;
+            color: #aaaaaa;
+            margin-top: 5px;
+        }
+        
+        /* Channel grid */
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .channel-card {
+            background: #111111;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #222222;
+            position: relative;
+        }
+        
+        .channel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+        }
+        
+        .channel-card.selected {
+            border: 2px solid #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .channel-card.premium-locked:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ff88;
+            font-size: 40px;
+        }
+        
+        .channel-card.premium-locked:after {
+            content: "\f023";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            color: #00ff88;
+            z-index: 3;
+        }
+        
+        .premium-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff9900;
+            color: #000;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            z-index: 4;
+        }
+        
+        .channel-logo {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+        }
+        
+        .channel-logo img {
+            max-height: 70px;
+            max-width: 120px;
+        }
+        
+        .channel-info {
+            padding: 10px;
+        }
+        
+        .channel-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+        }
+        
+        .channel-number {
+            font-size: 12px;
+            color: #00ff88;
+        }
+        
+        /* Nouveau lecteur Video.js positionné en haut */
+        .player-section {
+            background: #111111;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #222222;
+        }
+        
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #222222;
+        }
+        
+        .player-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .current-channel {
+            font-size: 14px;
+            color: #00ff88;
+        }
+        
+        .player-container {
+            background: #000000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border: 4px solid #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+        
+        /* Styles Video.js personnalisés */
+        .video-js {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 4px;
+        }
+        
+        .vjs-control-bar {
+            background-color: rgba(17, 17, 17, 0.9) !important;
+        }
+        
+        .vjs-play-control {
+            color: #00ff88 !important;
+        }
+        
+        .vjs-big-play-button {
+            background: rgba(0, 255, 136, 0.8) !important;
+            border: none !important;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .vjs-big-play-button .vjs-icon-placeholder:before {
+            font-size: 40px;
+            line-height: 80px;
+        }
+        
+        .vjs-play-progress {
+            background-color: #00ff88 !important;
+        }
+        
+        .vjs-slider {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        /* NOM DE LA CHAÎNE */
+        #channelName {
+            font-size: 22px;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #00ff88;
+            text-align: center;
+        }
+        
+        /* LOGO CHAÎNE EN OVERLAY */
+        #channelLogo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 60px;
+            height: 60px;
+            z-index: 9999;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .tech-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            font-size: 12px;
+            text-align: center;
+            color: #aaaaaa;
+        }
+        
+        .status-bar {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ff88;
+        }
+        
+        .status-text {
+            font-size: 14px;
+            color: #ffffff;
+        }
+        
+        /* EPG Grid Styles */
+        .epg-section {
+            margin-top: 30px;
+            background: #111111;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #222222;
+            display: none;
+        }
+        
+        .epg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #222222;
+        }
+        
+        .epg-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .epg-time-navigation {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .epg-nav-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            background: #222222;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .epg-nav-btn:hover {
+            background: #00ff88;
+        }
+        
+        .epg-current-time {
+            font-size: 14px;
+            color: #00ff88;
+        }
+        
+        .epg-container {
+            overflow-x: auto;
+            background: #000000;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .epg-timeline {
+            display: flex;
+            margin-bottom: 10px;
+            padding-left: 150px;
+        }
+        
+        .epg-time-slot {
+            min-width: 120px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaaaaa;
+            padding: 5px;
+            border-right: 1px solid #222222;
+        }
+        
+        .epg-channels {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .epg-channel-row {
+            display: flex;
+            border-bottom: 1px solid #222222;
+            min-height: 60px;
+        }
+        
+        .epg-channel-info {
+            width: 150px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            background: #111111;
+            border-right: 1px solid #222222;
+        }
+        
+        .epg-channel-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #ffffff;
+        }
+        
+        .epg-programs {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        
+        .epg-program {
+            position: absolute;
+            top: 5px;
+            bottom: 5px;
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 3px solid #00ff88;
+            border-radius: 4px;
+            padding: 5px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .epg-program:hover {
+            background: rgba(0, 255, 136, 0.4);
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        
+        .epg-program.current {
+            background: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        
+        .epg-program-title {
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+        }
+        
+        .epg-program-time {
+            font-size: 10px;
+            color: #aaaaaa;
+            margin-top: 2px;
+        }
+        
+        .epg-program-desc {
+            font-size: 10px;
+            color: #cccccc;
+            margin-top: 3px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .epg-now-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #00ff88;
+            z-index: 5;
+        }
+        
+        .epg-now-text {
+            position: absolute;
+            top: -20px;
+            background: #00ff88;
+            color: #000000;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: #111111;
+            border-radius: 10px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #222222;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00ff88;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #222222;
+            background: #000000;
+            color: #ffffff;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #00ff88;
+            color: #000000;
+        }
+        
+        .btn-primary:hover {
+            background: #00cc70;
+        }
+        
+        .btn-secondary {
+            background: #222222;
+            color: #ffffff;
+        }
+        
+        .btn-secondary:hover {
+            background: #333333;
+        }
+        
+        .premium-info {
+            background: rgba(255, 153, 0, 0.1);
+            border: 1px solid #ff9900;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .premium-features {
+            list-style: none;
+            margin: 10px 0;
+        }
+        
+        .premium-features li {
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .premium-features li i {
+            color: #ff9900;
+        }
+        
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .user-status.premium {
+            background: rgba(255, 153, 0, 0.1);
+        }
+        
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .status-icon.free {
+            background: #00ff88;
+            color: #000000;
+        }
+        
+        .status-icon.premium {
+            background: #ff9900;
+            color: #000000;
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            color: #ffffff;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff88;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .channels-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .sidebar {
+                width: 200px;
+            }
+            
+            .epg-channel-info {
+                width: 120px;
+            }
+            
+            .epg-timeline {
+                padding-left: 120px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;
+                gap: 10px;
+            }
+            
+            .sidebar-item {
+                white-space: nowrap;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+            
+            .sidebar-item:hover, .sidebar-item.active {
+                border-left: none;
+                border-bottom: 3px solid #00ff88;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .search-box {
+                width: 150px;
+            }
+            
+            .search-box input {
+                width: 100px;
+            }
+            
+            .epg-section {
+                padding: 10px;
+            }
+            
+            .epg-channel-info {
+                width: 100px;
+            }
+            
+            .epg-timeline {
+                padding-left: 100px;
+            }
+            
+            .epg-time-slot {
+                min-width: 80px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 15px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .channels-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+            
+            .player-container {
+                height: 250px;
+            }
+            
+            .epg-channel-info {
+                width: 80px;
+            }
+            
+            .epg-timeline {
+                padding-left: 80px;
+            }
+            
+            .epg-time-slot {
+                min-width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Satbox -->
+    <div class="header">
+        <div class="logo-container">
+            <div class="logo">Sat<span>box</span></div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item active">Accueil</a>
+                <a href="#" class="nav-item">Chaînes</a>
+                <a href="#" class="nav-item">Replay</a>
+                <a href="#" class="nav-item">Programmes</a>
+                <a href="#" class="nav-item">Sports</a>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Rechercher une chaîne..." oninput="filterChannels()">
+            </div>
+            <div class="user-avatar" id="userInfo" onclick="toggleUserModal()">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">CATÉGORIES <span id="categoriesCount" class="channel-count"></span></div>
+                <ul class="sidebar-menu" id="categoriesList">
+                    <li class="sidebar-item loading">
+                        <div class="loading-spinner"></div>
+                        Chargement des catégories...
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">GUIDE TV</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item" onclick="toggleEPG()">
+                        <i class="fas fa-tv"></i> Guide des programmes
+                    </li>
+                    <li class="sidebar-item" onclick="showNow()">
+                        <i class="fas fa-clock"></i> En ce moment
+                    </li>
+                    <li class="sidebar-item" onclick="showTonight()">
+                        <i class="fas fa-moon"></i> Ce soir
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">COMPTE</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item" onclick="toggleUserModal()">
+                        <i class="fas fa-crown"></i> Pass Premium
+                    </li>
+                    <li class="sidebar-item" onclick="showPremiumInfo()">
+                        <i class="fas fa-info-circle"></i> Info Premium
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Content area -->
+        <div class="content">
+            <!-- Player section en haut -->
+            <div class="player-section">
+                <div class="player-header">
+                    <div class="player-title">En Direct</div>
+                    <div class="current-channel" id="channelInfo">Aucune chaîne sélectionnée</div>
+                </div>
+                
+                <!-- NOM DE LA CHAÎNE -->
+                <div id="channelName">Chaîne en direct</div>
+                
+                <div class="player-container">
+                    <!-- LOGO CHAÎNE EN OVERLAY -->
+                    <img id="channelLogo" src="" alt="Logo chaîne" />
+                    <video
+                        id="my-player"
+                        class="video-js vjs-default-skin"
+                        controls
+                        autoplay
+                        muted
+                        data-setup='{}'>
+                    </video>
+                </div>
+                
+                <div class="tech-info">
+                    <i class="fas fa-info-circle"></i> Lecture optimisée avec Video.js
+                </div>
+                
+                <div class="status-bar">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <div class="status-text" id="statusText">Sélectionnez une chaîne</div>
+                </div>
+            </div>
+            
+            <!-- Content header pour les chaînes -->
+            <div class="content-header">
+                <div>
+                    <div class="section-title">Chaînes en direct</div>
+                    <div class="section-subtitle">Regardez la télévision en streaming</div>
+                </div>
+                <div class="filter-options">
+                    <span id="channelsCount" class="section-subtitle">(0) chaînes</span>
+                </div>
+            </div>
+            
+            <!-- Channels grid -->
+            <div class="channels-grid" id="channelsGrid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Chargement des chaînes en cours...
+                </div>
+            </div>
+            
+            <!-- EPG Section -->
+            <div class="epg-section" id="epgSection">
+                <div class="epg-header">
+                    <div class="epg-title">Guide des Programmes TV</div>
+                    <div class="epg-time-navigation">
+                        <button class="epg-nav-btn" onclick="changeEPGTime(-2)"><i class="fas fa-chevron-left"></i> -2h</button>
+                        <button class="epg-nav-btn" onclick="changeEPGTime(-1)">-1h</button>
+                        <span class="epg-current-time" id="epgCurrentTime"></span>
+                        <button class="epg-nav-btn" onclick="changeEPGTime(1)">+1h</button>
+                        <button class="epg-nav-btn" onclick="changeEPGTime(2)">+2h <i class="fas fa-chevron-right"></i></button>
+                        <button class="epg-nav-btn" onclick="resetEPGTime()">Maintenant</button>
+                    </div>
+                </div>
+                <div class="epg-container" id="epgContainer">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Chargement du guide TV...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Activation Premium -->
+    <div class="modal" id="premiumModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Activation Premium</div>
+                <button class="close-modal" onclick="toggleUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="user-status" id="userStatus">
+                    <div class="status-icon free" id="statusIcon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div id="statusTitle">Compte Gratuit</div>
+                        <div id="statusSubtitle" class="section-subtitle">Accès limité aux chaînes</div>
+                    </div>
+                </div>
+                
+                <div class="premium-info">
+                    <h3><i class="fas fa-crown"></i> Avantages Premium</h3>
+                    <ul class="premium-features">
+                        <li><i class="fas fa-check"></i> Accès à toutes les chaînes premium</li>
+                        <li><i class="fas fa-check"></i> Qualité HD/4K</li>
+                        <li><i class="fas fa-check"></i> Pas de publicités</li>
+                        <li><i class="fas fa-check"></i> Support prioritaire</li>
+                    </ul>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="activationCode">Code d'activation (13 caractères)</label>
+                    <input type="text" id="activationCode" class="form-input" placeholder="Ex: SATBOX-ABC123" maxlength="13">
+                </div>
+                
+                <button class="btn btn-primary" onclick="activatePremium()" style="width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-bolt"></i> Activer Premium
+                </button>
+                
+                <div id="activationResult" style="margin-top: 15px; text-align: center;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video.js JS -->
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+
+    <script>
+        // Configuration Xtream avec gestion CORS/HTTPS améliorée
+        const XTREAM_CONFIG = {
+            username: 'tlg',
+            password: 'xtreamgroup',
+            server: 'http://tv.streambox.fr',
+            // Proxies CORS alternatifs
+            corsProxies: [
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest=',
+                'https://cors-anywhere.herokuapp.com/'
+            ],
+            currentProxyIndex: 0,
+            // Headers personnalisés pour les requêtes
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': '*/*',
+                'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+                'Origin': window.location.origin,
+                'Referer': window.location.origin
+            }
+        };
+        
+        // Configuration EPG
+        const EPG_CONFIG = {
+            hoursToShow: 6,
+            slotWidth: 120, // pixels par heure
+            currentTimeOffset: 0 // décalage horaire en heures
+        };
+        
+        // Configuration Premium avec 10 000 codes d'activation
+        const PREMIUM_CONFIG = {
+            userPremium: false,
+            premiumExpiry: null,
+            premiumFeatures: ['all_channels', 'hd_quality', 'no_ads', 'priority_support'],
+            // Base de données des codes d'activation (13 caractères) - 10 000 codes
+            activationCodesDB: {
+                "SATBOX-PBHH09": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-TI77LU": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-UKAPPA": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-4R8BTV": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-2G8Q87": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-QZ5DNK": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-JV1P6R": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-9L3MZQ": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-R8W2XU": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-GH6K4T": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-YV0J7B": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-M2F9S8": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-C4D1QW": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-H8R3LP": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-S7N0XK": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-FB2V6M": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-LP3G4J": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-Z9C5TR": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-N0Q8VH": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-W3K2BP": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-A6S1Y9": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-E7U4Z2": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-V5M9R3": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-1J8QW6": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-K4T2HP": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-8X5L9B": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-3F6VYQ1": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-0R2ZNK8": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-P9J7M4S": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-Q3H6C1L": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-Y2W8VB5": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-M7S4KJ0": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-D6P1XR9": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-L8Z3QF2": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-S0B5TN6": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-G1V9H4C": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-R2K7LP8": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-5N3QWZ0": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-T9M6C2J": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-F4Y8BX1": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-H2Z5PR7": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-C9L1VG6": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-6Q3N8SX": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-W7J2DM4": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-A0P6RK9": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-V8S3QH1": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-J5B4NY2": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-1R9TXC6": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-Z6K1LF7": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-E3M8VQ5": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-N4D2PH0": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-8G7YWJ3": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+  "SATBOX-3C5BQZ9": { "status": "active", "expiry": "2025-10-24T23:59:59Z", "duration": "7_days" },
+
+  "SATBOX-K9T4X2": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-P3M7V1": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-Q6L2B5": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-Y8F0S4": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-M1C9D7": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-4R5JX8": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-2V6H90": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-G7S1Q3": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-T0N4L6": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-F9B2Y5": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-H3K8C1J": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-Z5P6VR2": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-N7Q0XS4": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-W1J3GD9": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-A8V5PK0": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-L6M2TR7": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-S4Y9HN1": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-C0R7JB5": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-V2X8KQ3": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-1D6ZPF4": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-R5H3LJ8": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-9Q4BV0N": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-T7K1GZ2": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-E6M9XS7": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-P2C8HR5": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-Q1J4VN6": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-Y3L0DK9": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+  "SATBOX-M5W7SZ0": { "status": "active", "expiry": "2026-01-24T23:59:59Z", "duration": "3_months" },
+
+  "SATBOX-4R1TP6": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-G8V3N2": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-H0J9B5": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-Z6KLM1": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-N5S7V3": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-W4C8R9": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-A1P6F0": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-L9M3B2": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-S8Y0H4": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-C2D5QJ7": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-V7R1ZN3": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-3F9TXL6": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-Q0H4MB8": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-Y6K2PR1": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-M8S5VJ0": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-D4N7CG3": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-R1W9XL5": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-8P3QHZ6": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+  "SATBOX-T5B0KV2": { "status": "active", "expiry": "2026-05-24T23:59:59Z", "duration": "7_months" },
+
+  "SATBOX-F9M6P1": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-H2J8V7": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-Z4K1H3": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-N7S5RB": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-W3C9T6": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-A6P2L8": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-L0M4QJ9": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-S8Y7VN2": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-C5D1XR4": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-V9R3KB0": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-1F6TQZ5": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-R4H2PM7": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-9Q8BV3L": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-T7K5GN1": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-E6M0XS2": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-P2C8HR9": { "status": "active", "expiry": "2026-10-24T23:59:59:59Z", "duration": "1_year" },
+  "SATBOX-Q1J4VN6": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-Y3L0DK8": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+  "SATBOX-M5W7SZ4": { "status": "active", "expiry": "2026-10-24T23:59:59Z", "duration": "1_year" },
+
+  "SATBOX-4B9RKT": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-G6V3X8": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-H0J1B5": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-Z6K2M4": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-N5S7V0": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-W4C8RD1": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-A1P6XF7": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-L9M3BV8": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-S8Y0HK6": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" },
+  "SATBOX-C2D5QJ0": { "status": "active", "expiry": "2027-10-24T23:59:59Z", "duration": "2_years" }
+                // Les 9 988 codes restants seraient chargés depuis un fichier externe
+                // Pour l'exemple, nous gardons seulement 12 codes dans le code source
+            }
+        };
+        
+        // Fonction pour charger les 10 000 codes depuis un fichier externe
+        async function loadActivationCodes() {
+            try {
+                // En production, vous chargeriez depuis un fichier JSON externe
+                // const response = await fetch('/activation_codes.json');
+                // PREMIUM_CONFIG.activationCodesDB = await response.json();
+                
+                console.log('Base de codes d\'activation chargée (12 codes de démonstration)');
+                // En production, vous auriez ici les 10 000 codes
+            } catch (error) {
+                console.error('Erreur chargement codes activation:', error);
+            }
+        }
+        
+        // Modifier checkActivationCode pour accepter la longueur 13 (SATBOX-XXXXXX)
+        function checkActivationCode(code) {
+          const cleanCode = code.trim().toUpperCase();
+          // Autoriser 13 caractères (SATBOX- + 6)
+          if (cleanCode.length !== 13 || !cleanCode.startsWith('SATBOX-')) {
+            return { valid: false, message: "Format de code invalide" };
+          }
+          const codeData = PREMIUM_CONFIG.activationCodesDB[cleanCode];
+          if (!codeData) return { valid: false, message: "Code d'activation invalide" };
+          if (codeData.status === 'used') return { valid: false, message: "Ce code a déjà été utilisé" };
+          if (new Date(codeData.expiry) < new Date()) return { valid: false, message: "Ce code a expiré" };
+          return { valid: true, data: codeData, message: `Code valide - Durée: ${codeData.duration.replace('_', ' ')}` };
+        }
+        
+        // Toutes les chaînes sont payantes : accès uniquement si l'utilisateur est premium
+        function checkPremiumAccess(channel) {
+          return !!PREMIUM_CONFIG.userPremium; // true si l'utilisateur a le premium, false sinon
+        }
+        
+        // Fonction pour marquer un code comme utilisé
+        function markCodeAsUsed(code) {
+            if (PREMIUM_CONFIG.activationCodesDB[code]) {
+                PREMIUM_CONFIG.activationCodesDB[code].status = 'used';
+                return true;
+            }
+            return false;
+        }
+        
+        // Initialiser la configuration premium
+        function initializePremiumConfig() {
+            // Vérifier si l'utilisateur a déjà un abonnement premium
+            const savedPremium = localStorage.getItem('satbox_premium');
+            if (savedPremium) {
+                const premiumData = JSON.parse(savedPremium);
+                if (new Date(premiumData.expiry) > new Date()) {
+                    PREMIUM_CONFIG.userPremium = true;
+                    PREMIUM_CONFIG.premiumExpiry = new Date(premiumData.expiry);
+                    updateUserStatus();
+                }
+            }
+            
+            // Charger les codes d'activation
+            loadActivationCodes();
+        }
+        
+        let categories = [];
+        let channels = [];
+        let selectedChannel = null;
+        let currentStreamUrl = null;
+        let player = null;
+        
+        // Données EPG
+        let epgData = null;
+        let channelMap = {}; // Mapping des noms de chaînes
+        
+        // Éléments DOM
+        const categoriesList = document.getElementById('categoriesList');
+        const channelsGrid = document.getElementById('channelsGrid');
+        const channelInfo = document.getElementById('channelInfo');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const searchInput = document.getElementById('searchInput');
+        const categoriesCountElement = document.getElementById('categoriesCount');
+        const channelsCountElement = document.getElementById('channelsCount');
+        const epgSection = document.getElementById('epgSection');
+        const epgContainer = document.getElementById('epgContainer');
+        const epgCurrentTime = document.getElementById('epgCurrentTime');
+        const channelName = document.getElementById('channelName');
+        const channelLogo = document.getElementById('channelLogo');
+        const premiumModal = document.getElementById('premiumModal');
+        const userStatus = document.getElementById('userStatus');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusSubtitle = document.getElementById('statusSubtitle');
+        const activationCode = document.getElementById('activationCode');
+        const activationResult = document.getElementById('activationResult');
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser Video.js player
+            player = videojs('my-player');
+            
+            // Initialiser la configuration premium
+            initializePremiumConfig();
+            
+            updateStatus('Connexion au serveur TV...', 'loading');
+            loadCategories();
+            loadEPGData();
+            
+            // Gestion des erreurs vidéo
+            player.on('error', function() {
+                updateStatus('Erreur de lecture', 'error');
+            });
+            
+            player.on('waiting', function() {
+                updateStatus('Buffering...', 'loading');
+            });
+            
+            player.on('playing', function() {
+                updateStatus(`Lecture en cours: ${selectedChannel ? selectedChannel.name : ''}`, 'success');
+            });
+            
+            // Formater automatiquement le code d'activation
+            activationCode.addEventListener('input', function(e) {
+                let value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+                
+                // Ajouter automatiquement "SATBOX-" si l'utilisateur commence à taper
+                if (value.length > 0 && !value.startsWith('SATBOX-')) {
+                    if (value.length <= 7) {
+                        value = 'SATBOX-' + value;
+                    } else {
+                        value = 'SATBOX-' + value.substring(7);
+                    }
+                }
+                
+                // Limiter à 13 caractères
+                if (value.length > 13) {
+                    value = value.substring(0, 13);
+                }
+                
+                e.target.value = value;
+            });
+        });
+        
+        // Gestion du modal utilisateur
+        function toggleUserModal() {
+            updateUserStatus();
+            if (premiumModal.style.display === 'flex') {
+                premiumModal.style.display = 'none';
+            } else {
+                premiumModal.style.display = 'flex';
+                activationCode.focus();
+            }
+        }
+        
+        // Mettre à jour le statut utilisateur
+        function updateUserStatus() {
+            if (PREMIUM_CONFIG.userPremium) {
+                userStatus.className = 'user-status premium';
+                statusIcon.className = 'status-icon premium';
+                statusIcon.innerHTML = '<i class="fas fa-crown"></i>';
+                statusTitle.textContent = 'Compte Premium';
+                
+                const expiryDate = PREMIUM_CONFIG.premiumExpiry;
+                const daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                statusSubtitle.textContent = `Expire dans ${daysLeft} jour(s)`;
+            } else {
+                userStatus.className = 'user-status';
+                statusIcon.className = 'status-icon free';
+                statusIcon.innerHTML = '<i class="fas fa-user"></i>';
+                statusTitle.textContent = 'Compte Gratuit';
+                statusSubtitle.textContent = 'Accès limité aux chaînes';
+            }
+        }
+        
+        // Activer le premium avec code court
+        function activatePremium() {
+            const code = activationCode.value.trim();
+            activationResult.innerHTML = '';
+            
+            if (!code) {
+                activationResult.innerHTML = '<div style="color: #e74c3c;">Veuillez entrer un code d\'activation</div>';
+                return;
+            }
+            
+            if (code.length !== 13) {
+                activationResult.innerHTML = '<div style="color: #e74c3c;">Le code doit contenir exactement 13 caractères</div>';
+                return;
+            }
+            
+            const validation = checkActivationCode(code);
+            
+            if (validation.valid) {
+                // Activer le premium
+                PREMIUM_CONFIG.userPremium = true;
+                PREMIUM_CONFIG.premiumExpiry = new Date(validation.data.expiry);
+                
+                // Marquer le code comme utilisé
+                markCodeAsUsed(code.toUpperCase());
+                
+                // Sauvegarder dans le localStorage
+                localStorage.setItem('satbox_premium', JSON.stringify({
+                    activated: true,
+                    expiry: validation.data.expiry,
+                    activatedAt: new Date().toISOString(),
+                    code: code,
+                    duration: validation.data.duration
+                }));
+                
+                // Mettre à jour l'interface
+                updateUserStatus();
+                refreshChannelsDisplay();
+                
+                const expiryDate = new Date(validation.data.expiry);
+                const daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                
+                activationResult.innerHTML = `<div style="color: #00ff88;">
+                    <i class="fas fa-check-circle"></i> Premium activé avec succès!<br>
+                    ${validation.message}
+                </div>`;
+                
+                // Réinitialiser le champ
+                activationCode.value = '';
+                
+                // Fermer le modal après 3 secondes
+                setTimeout(() => {
+                    premiumModal.style.display = 'none';
+                }, 3000);
+                
+            } else {
+                activationResult.innerHTML = `<div style="color: #e74c3c;">${validation.message}</div>`;
+            }
+        }
+        
+        // Afficher les informations premium
+        function showPremiumInfo() {
+            toggleUserModal();
+        }
+        
+        // Rafraîchir l'affichage des chaînes
+        function refreshChannelsDisplay() {
+            displayChannels();
+        }
+        
+        // Charger les données EPG depuis l'API Xtream
+        async function loadEPGData() {
+            try {
+                const apiUrl = `${XTREAM_CONFIG.server}/player_api.php?username=${XTREAM_CONFIG.username}&password=${XTREAM_CONFIG.password}&action=get_short_epg`;
+                
+                const response = await fetchWithCORS(apiUrl);
+                const data = await response.json();
+                
+                epgData = data;
+                
+                // Créer un mapping des chaînes avec correspondance améliorée
+                if (epgData && Array.isArray(epgData)) {
+                    for (let program of epgData) {
+                        if (program.channel_name && program.channel_id) {
+                            channelMap[program.channel_name] = program.channel_id;
+                            
+                            // Ajouter des variantes pour améliorer la correspondance
+                            const variants = generateChannelNameVariants(program.channel_name);
+                            variants.forEach(variant => {
+                                if (!channelMap[variant]) {
+                                    channelMap[variant] = program.channel_id;
+                                }
+                            });
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Erreur chargement EPG:', error);
+                // Charger des données de démonstration pour l'EPG
+                loadDemoEPGData();
+            }
+        }
+        
+        // Charger des données EPG de démonstration
+        function loadDemoEPGData() {
+            epgData = [
+                {
+                    channel_id: 1,
+                    channel_name: "Satbox Premium",
+                    title: "Film: Action en direct",
+                    description: "Un film d'action palpitant avec des scènes de cascade impressionnantes.",
+                    start: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+                    end: new Date(Date.now() + 90 * 60 * 1000).toISOString()
+                },
+                {
+                    channel_id: 2,
+                    channel_name: "TF1",
+                    title: "Série: Policier",
+                    description: "Un épisode intense de la série policière la plus regardée.",
+                    start: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+                    end: new Date(Date.now() + 45 * 60 * 1000).toISOString()
+                },
+                {
+                    channel_id: 3,
+                    channel_name: "France 2",
+                    title: "Journal Télévisé",
+                    description: "Les dernières actualités nationales et internationales.",
+                    start: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+                    end: new Date(Date.now() + 50 * 60 * 1000).toISOString()
+                },
+                {
+                    channel_id: 4,
+                    channel_name: "M6",
+                    title: "Téléréalité",
+                    description: "Nouvel épisode de la téléréalité la plus suivie.",
+                    start: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
+                    end: new Date(Date.now() + 40 * 60 * 1000).toISOString()
+                },
+                {
+                    channel_id: 5,
+                    channel_name: "Satbox Sport",
+                    title: "Match de Football",
+                    description: "Finale de championnat entre deux équipes prestigieuses.",
+                    start: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+                    end: new Date(Date.now() + 45 * 60 * 1000).toISOString()
+                }
+            ];
+            
+            // Créer le mapping des chaînes
+            for (let program of epgData) {
+                if (program.channel_name && program.channel_id) {
+                    channelMap[program.channel_name] = program.channel_id;
+                }
+            }
+        }
+        
+        // Générer des variantes de noms de chaînes pour améliorer la correspondance
+        function generateChannelNameVariants(channelName) {
+            const variants = [];
+            const lowerName = channelName.toLowerCase();
+            
+            // Variantes courantes
+            if (lowerName.includes('france')) {
+                if (lowerName.includes('france 2')) variants.push('France 2', 'FRANCE 2', 'france2');
+                if (lowerName.includes('france 3')) variants.push('France 3', 'FRANCE 3', 'france3');
+                if (lowerName.includes('france 4')) variants.push('France 4', 'FRANCE 4', 'france4');
+                if (lowerName.includes('france 5')) variants.push('France 5', 'FRANCE 5', 'france5');
+            }
+            
+            if (lowerName.includes('tf1')) variants.push('TF1', 'Tf1');
+            if (lowerName.includes('m6')) variants.push('M6', 'm6');
+            if (lowerName.includes('arte')) variants.push('Arte', 'ARTE');
+            if (lowerName.includes('c8')) variants.push('C8', 'C8');
+            if (lowerName.includes('w9')) variants.push('W9', 'w9');
+            if (lowerName.includes('tmc')) variants.push('TMC', 'Tmc');
+            if (lowerName.includes('nt1')) variants.push('NT1', 'Nt1');
+            if (lowerName.includes('nrj 12')) variants.push('NRJ 12', 'NRJ12', 'nrj12');
+            
+            // Variantes Satbox
+            if (lowerName.includes('satbox')) {
+                variants.push('Satbox', 'SATBOX');
+                if (lowerName.includes('sport')) variants.push('Satbox Sport', 'SATBOX SPORT');
+                if (lowerName.includes('premium')) variants.push('Satbox Premium', 'SATBOX PREMIUM');
+                if (lowerName.includes('cinéma') || lowerName.includes('cinema')) variants.push('Satbox Cinéma', 'SATBOX CINEMA');
+                if (lowerName.includes('series')) variants.push('Satbox Series', 'SATBOX SERIES');
+                if (lowerName.includes('family')) variants.push('Satbox Family', 'SATBOX FAMILY');
+            }
+            
+            return variants;
+        }
+        
+        // Trouver l'ID de chaîne EPG correspondant au nom de chaîne
+        function findEpgChannelId(channelName) {
+            // Recherche exacte d'abord
+            if (channelMap[channelName]) {
+                return channelMap[channelName];
+            }
+            
+            // Recherche par correspondance partielle
+            for (let epgName in channelMap) {
+                if (epgName.toLowerCase().includes(channelName.toLowerCase()) || 
+                    channelName.toLowerCase().includes(epgName.toLowerCase())) {
+                    return channelMap[epgName];
+                }
+            }
+            
+            // Recherche par mots-clés communs
+            const keywords = ['tf1', 'france', 'm6', 'arte', 'c8', 'w9', 'tmc', 'satbox'];
+            for (let keyword of keywords) {
+                if (channelName.toLowerCase().includes(keyword)) {
+                    for (let epgName in channelMap) {
+                        if (epgName.toLowerCase().includes(keyword)) {
+                            return channelMap[epgName];
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+        
+        // Afficher/Masquer l'EPG
+        function toggleEPG() {
+            if (epgSection.style.display === 'none' || !epgSection.style.display) {
+                epgSection.style.display = 'block';
+                renderEPG();
+            } else {
+                epgSection.style.display = 'none';
+            }
+        }
+        
+        // Afficher les programmes en cours
+        function showNow() {
+            EPG_CONFIG.currentTimeOffset = 0;
+            epgSection.style.display = 'block';
+            renderEPG();
+        }
+        
+        // Afficher les programmes de ce soir
+        function showTonight() {
+            const now = new Date();
+            const evening = new Date(now);
+            evening.setHours(20, 0, 0, 0); // 20h00
+            
+            EPG_CONFIG.currentTimeOffset = (evening - now) / (1000 * 60 * 60); // différence en heures
+            epgSection.style.display = 'block';
+            renderEPG();
+        }
+        
+        // Changer l'heure affichée dans l'EPG
+        function changeEPGTime(hours) {
+            EPG_CONFIG.currentTimeOffset += hours;
+            renderEPG();
+        }
+        
+        // Réinitialiser l'heure de l'EPG
+        function resetEPGTime() {
+            EPG_CONFIG.currentTimeOffset = 0;
+            renderEPG();
+        }
+        
+        // Rendre la grille EPG
+        function renderEPG() {
+            if (!epgData) {
+                epgContainer.innerHTML = '<div class="loading">Données EPG non disponibles</div>';
+                return;
+            }
+            
+            const now = new Date();
+            const startTime = new Date(now.getTime() + EPG_CONFIG.currentTimeOffset * 60 * 60 * 1000);
+            startTime.setMinutes(0, 0, 0); // Commencer à l'heure pile
+            
+            // Mettre à jour l'affichage de l'heure
+            epgCurrentTime.textContent = startTime.toLocaleTimeString('fr-FR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                day: 'numeric',
+                month: 'short'
+            });
+            
+            // Générer la timeline
+            let timelineHTML = '<div class="epg-timeline">';
+            for (let i = 0; i < EPG_CONFIG.hoursToShow; i++) {
+                const time = new Date(startTime.getTime() + i * 60 * 60 * 1000);
+                timelineHTML += `<div class="epg-time-slot">${time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>`;
+            }
+            timelineHTML += '</div>';
+            
+            // Générer les lignes des chaînes
+            let channelsHTML = '<div class="epg-channels">';
+            
+            // Utiliser les chaînes disponibles ou les chaînes de démonstration
+            const channelsToShow = channels.length > 0 ? channels.slice(0, 15) : [
+                { name: 'Satbox Premium', stream_id: 1 },
+                { name: 'TF1', stream_id: 2 },
+                { name: 'France 2', stream_id: 3 },
+                { name: 'France 3', stream_id: 4 },
+                { name: 'France 4', stream_id: 5 },
+                { name: 'France 5', stream_id: 6 },
+                { name: 'M6', stream_id: 7 },
+                { name: 'Arte', stream_id: 8 },
+                { name: 'C8', stream_id: 9 },
+                { name: 'W9', stream_id: 10 },
+                { name: 'TMC', stream_id: 11 },
+                { name: 'Satbox Sport', stream_id: 12 },
+                { name: 'Satbox Cinéma', stream_id: 13 },
+                { name: 'Satbox Series', stream_id: 14 },
+                { name: 'Satbox Family', stream_id: 15 }
+            ];
+            
+            channelsToShow.forEach(channel => {
+                channelsHTML += `<div class="epg-channel-row">`;
+                channelsHTML += `<div class="epg-channel-info">`;
+                channelsHTML += `<div class="epg-channel-name">${channel.name}</div>`;
+                channelsHTML += `</div>`;
+                channelsHTML += `<div class="epg-programs" style="width: ${EPG_CONFIG.hoursToShow * EPG_CONFIG.slotWidth}px">`;
+                
+                // Ajouter l'indicateur "Maintenant"
+                const nowIndicatorPosition = ((now - startTime) / (1000 * 60 * 60)) * EPG_CONFIG.slotWidth;
+                if (nowIndicatorPosition >= 0 && nowIndicatorPosition <= EPG_CONFIG.hoursToShow * EPG_CONFIG.slotWidth) {
+                    channelsHTML += `<div class="epg-now-indicator" style="left: ${nowIndicatorPosition}px">`;
+                    channelsHTML += `<div class="epg-now-text">MAINTENANT</div>`;
+                    channelsHTML += `</div>`;
+                }
+                
+                // Récupérer les programmes pour cette chaîne
+                const programs = getProgramsForChannel(channel.name, startTime, EPG_CONFIG.hoursToShow);
+                
+                programs.forEach(program => {
+                    const programStart = new Date(program.start);
+                    const programEnd = new Date(program.end || program.stop);
+                    const programDuration = (programEnd - programStart) / (1000 * 60 * 60); // durée en heures
+                    const programPosition = ((programStart - startTime) / (1000 * 60 * 60)) * EPG_CONFIG.slotWidth;
+                    const programWidth = programDuration * EPG_CONFIG.slotWidth;
+                    
+                    const isCurrent = programStart <= now && programEnd > now;
+                    
+                    channelsHTML += `<div class="epg-program ${isCurrent ? 'current' : ''}" 
+                        style="left: ${programPosition}px; width: ${programWidth}px;"
+                        title="${program.title} - ${program.description || program.desc || ''}">
+                        <div class="epg-program-title">${program.title}</div>
+                        <div class="epg-program-time">${programStart.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+                        ${(program.description || program.desc) ? `<div class="epg-program-desc">${program.description || program.desc}</div>` : ''}
+                    </div>`;
+                });
+                
+                channelsHTML += `</div>`;
+                channelsHTML += `</div>`;
+            });
+            
+            channelsHTML += '</div>';
+            
+            epgContainer.innerHTML = timelineHTML + channelsHTML;
+        }
+        
+        // Récupérer les programmes pour une chaîne
+        function getProgramsForChannel(channelName, startTime, hours) {
+            if (!epgData) return [];
+            
+            const endTime = new Date(startTime.getTime() + hours * 60 * 60 * 1000);
+            const programs = [];
+            
+            // Trouver l'ID de la chaîne avec la nouvelle fonction de correspondance
+            const channelId = findEpgChannelId(channelName);
+            
+            if (!channelId) {
+                return [];
+            }
+            
+            // Récupérer les programmes
+            if (Array.isArray(epgData)) {
+                for (let program of epgData) {
+                    if (program.channel_id == channelId) {
+                        const programStart = new Date(program.start);
+                        const programEnd = new Date(program.end || program.stop);
+                        
+                        // Vérifier si le programme est dans l'intervalle affiché
+                        if (programEnd > startTime && programStart < endTime) {
+                            programs.push({
+                                title: program.title || 'Programme inconnu',
+                                description: program.description || program.desc || '',
+                                start: programStart,
+                                end: programEnd
+                            });
+                        }
+                    }
+                }
+            }
+            
+            return programs.sort((a, b) => a.start - b.start);
+        }
+        
+        // Fonction pour mettre à jour le statut
+        function updateStatus(message, type = 'info') {
+            statusText.textContent = message;
+            
+            switch(type) {
+                case 'loading':
+                    statusIndicator.style.background = '#00ff88';
+                    break;
+                case 'success':
+                    statusIndicator.style.background = '#2ecc71';
+                    break;
+                case 'error':
+                    statusIndicator.style.background = '#e74c3c';
+                    break;
+                default:
+                    statusIndicator.style.background = '#00ff88';
+            }
+        }
+        
+        // Obtenir le proxy actuel
+        function getCurrentProxy() {
+            return XTREAM_CONFIG.corsProxies[XTREAM_CONFIG.currentProxyIndex];
+        }
+        
+        // Fonction fetch avec gestion CORS avancée
+        async function fetchWithCORS(url, options = {}) {
+            let finalUrl = url;
+            
+            // Utiliser le proxy seulement pour les URLs HTTP en HTTPS
+            if (url.startsWith('http://') && window.location.protocol === 'https:') {
+                finalUrl = getCurrentProxy() + encodeURIComponent(url.replace('http://', 'https://'));
+            } else if (url.startsWith('http://')) {
+                finalUrl = getCurrentProxy() + encodeURIComponent(url);
+            }
+            
+            try {
+                const response = await fetch(finalUrl, {
+                    ...options,
+                    headers: {
+                        ...XTREAM_CONFIG.headers,
+                        ...options.headers
+                    },
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('Erreur fetch:', error);
+                throw error;
+            }
+        }
+        
+        // Charger les catégories avec gestion CORS
+        async function loadCategories() {
+            try {
+                updateStatus('Chargement des catégories...', 'loading');
+                
+                const apiUrl = `${XTREAM_CONFIG.server}/player_api.php?username=${XTREAM_CONFIG.username}&password=${XTREAM_CONFIG.password}&action=get_live_categories`;
+                
+                const response = await fetchWithCORS(apiUrl);
+                const data = await response.json();
+                
+                categories = Array.isArray(data) ? data : [];
+                displayCategories();
+                updateStatus('Catégories chargées avec succès', 'success');
+                
+                if (categories.length > 0) {
+                    loadChannels(categories[0].category_id);
+                } else {
+                    loadDemoData();
+                }
+            } catch (error) {
+                console.error('Erreur chargement catégories:', error);
+                updateStatus('Erreur de chargement - Mode démo activé', 'error');
+                loadDemoData();
+            }
+        }
+        
+        // Charger les chaînes d'une catégorie
+        async function loadChannels(categoryId) {
+            try {
+                updateStatus('Chargement des chaînes...', 'loading');
+                channelsGrid.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Chargement des chaînes...</div>';
+                
+                const apiUrl = `${XTREAM_CONFIG.server}/player_api.php?username=${XTREAM_CONFIG.username}&password=${XTREAM_CONFIG.password}&action=get_live_streams&category_id=${categoryId}`;
+                
+                const response = await fetchWithCORS(apiUrl);
+                const data = await response.json();
+                
+                channels = Array.isArray(data) ? data : [];
+                displayChannels();
+                updateStatus('Chaînes chargées avec succès', 'success');
+                
+            } catch (error) {
+                console.error('Erreur chargement chaînes:', error);
+                updateStatus('Erreur de chargement des chaînes', 'error');
+                channels = [];
+                displayChannels();
+            }
+        }
+        
+        // Afficher les catégories
+        function displayCategories() {
+            categoriesList.innerHTML = '';
+            
+            if (categories.length === 0) {
+                categoriesList.innerHTML = '<li class="sidebar-item">Aucune catégorie disponible</li>';
+                return;
+            }
+            
+            categories.forEach(category => {
+                const li = document.createElement('li');
+                li.className = 'sidebar-item';
+                li.innerHTML = `<i class="fas fa-folder"></i> ${category.category_name}`;
+                li.addEventListener('click', () => {
+                    document.querySelectorAll('#categoriesList li').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    li.classList.add('active');
+                    loadChannels(category.category_id);
+                });
+                
+                categoriesList.appendChild(li);
+            });
+            
+            categoriesCountElement.textContent = `(${categories.length})`;
+            
+            if (categoriesList.firstChild) {
+                categoriesList.firstChild.classList.add('active');
+            }
+        }
+        
+        // Afficher les chaînes
+        function displayChannels() {
+            channelsGrid.innerHTML = '';
+            
+            if (channels.length === 0) {
+                channelsGrid.innerHTML = '<div class="loading">Aucune chaîne disponible</div>';
+                channelsCountElement.textContent = '(0) chaînes';
+                return;
+            }
+            
+            channels.sort((a, b) => a.name.localeCompare(b.name));
+            
+            channels.forEach((channel, index) => {
+                const channelCard = document.createElement('div');
+                const hasPremiumAccess = checkPremiumAccess(channel);
+                const isPremiumChannel = !hasPremiumAccess;
+                
+                channelCard.className = `channel-card ${isPremiumChannel ? 'premium-locked' : ''}`;
+                channelCard.innerHTML = `
+                    ${isPremiumChannel ? '<div class="premium-badge">PREMIUM</div>' : ''}
+                    <div class="channel-logo">
+                        ${channel.stream_icon ? 
+                            `<img src="${channel.stream_icon}" alt="${channel.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-tv\\'></i>'">` : 
+                            `<i class="fas fa-tv" style="font-size: 40px; color: #00ff88;"></i>`
+                        }
+                    </div>
+                    <div class="channel-info">
+                        <div class="channel-name">${channel.name}</div>
+                        <div class="channel-number">N°${index + 1}</div>
+                    </div>
+                `;
+                
+                channelCard.addEventListener('click', () => {
+                    if (isPremiumChannel) {
+                        updateStatus('Chaîne premium - Activez votre abonnement', 'error');
+                        toggleUserModal();
+                        return;
+                    }
+                    selectChannel(channel, channelCard);
+                });
+                
+                channelsGrid.appendChild(channelCard);
+            });
+            
+            channelsCountElement.textContent = `(${channels.length}) chaînes`;
+        }
+        
+        // Filtrer les chaînes
+        function filterChannels() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayChannels();
+                return;
+            }
+            
+            const filteredChannels = channels.filter(channel => 
+                channel.name.toLowerCase().includes(searchTerm)
+            );
+            
+            channelsGrid.innerHTML = '';
+            
+            if (filteredChannels.length === 0) {
+                channelsGrid.innerHTML = '<div class="loading">Aucune chaîne correspondante</div>';
+                return;
+            }
+            
+            filteredChannels.forEach((channel, index) => {
+                const channelCard = document.createElement('div');
+                const hasPremiumAccess = checkPremiumAccess(channel);
+                const isPremiumChannel = !hasPremiumAccess;
+                
+                channelCard.className = `channel-card ${isPremiumChannel ? 'premium-locked' : ''}`;
+                channelCard.innerHTML = `
+                    ${isPremiumChannel ? '<div class="premium-badge">PREMIUM</div>' : ''}
+                    <div class="channel-logo">
+                        ${channel.stream_icon ? 
+                            `<img src="${channel.stream_icon}" alt="${channel.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-tv\\'></i>'">` : 
+                            `<i class="fas fa-tv" style="font-size: 40px; color: #00ff88;"></i>`
+                        }
+                    </div>
+                    <div class="channel-info">
+                        <div class="channel-name">${channel.name}</div>
+                        <div class="channel-number">N°${index + 1}</div>
+                    </div>
+                `;
+                
+                channelCard.addEventListener('click', () => {
+                    if (isPremiumChannel) {
+                        updateStatus('Chaîne premium - Activez votre abonnement', 'error');
+                        toggleUserModal();
+                        return;
+                    }
+                    selectChannel(channel, channelCard);
+                });
+                
+                channelsGrid.appendChild(channelCard);
+            });
+        }
+        
+        // Sélectionner une chaîne
+        function selectChannel(channel, channelCard) {
+            selectedChannel = channel;
+            
+            document.querySelectorAll('.channel-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            channelCard.classList.add('selected');
+            
+            channelInfo.textContent = `Chaîne sélectionnée: ${channel.name}`;
+            
+            // Générer l'URL du flux avec gestion HTTPS
+            let streamUrl = `${XTREAM_CONFIG.server}/live/${XTREAM_CONFIG.username}/${XTREAM_CONFIG.password}/${channel.stream_id}.m3u8`;
+            
+            // Forcer HTTPS si la page est en HTTPS
+            if (window.location.protocol === 'https:') {
+                streamUrl = streamUrl.replace('http://', 'https://');
+            }
+            
+            currentStreamUrl = streamUrl;
+            
+            updateStatus(`Prêt à lire: ${channel.name}`, 'success');
+            
+            // Mettre à jour le nom de la chaîne et le logo
+            channelName.textContent = channel.name;
+            channelLogo.src = channel.stream_icon || '';
+            
+            // Lancer automatiquement la lecture
+            playStream();
+        }
+        
+        // Lire le flux avec Video.js
+        function playStream() {
+            if (!selectedChannel) {
+                updateStatus('Veuillez sélectionner une chaîne d\'abord', 'error');
+                return;
+            }
+            
+            updateStatus(`Connexion au flux: ${selectedChannel.name}...`, 'loading');
+            
+            // Utiliser le proxy CORS pour l'URL source si nécessaire
+            let sourceUrl = currentStreamUrl;
+            if (window.location.protocol === 'https:' && sourceUrl.startsWith('http://')) {
+                sourceUrl = getCurrentProxy() + encodeURIComponent(sourceUrl.replace('http://', 'https://'));
+            }
+            
+            // Charger la source avec Video.js
+            player.src({ src: sourceUrl, type: 'application/x-mpegURL' });
+            player.play();
+        }
+        
+        // Données de démonstration avec toutes les chaînes premium
+        function loadDemoData() {
+            categories = [
+                { category_id: 1, category_name: 'Français' },
+                { category_id: 2, category_name: 'Sports' },
+                { category_id: 3, category_name: 'International' },
+                { category_id: 4, category_name: 'Cinéma' },
+                { category_id: 5, category_name: 'Jeunesse' },
+                { category_id: 6, category_name: 'Premium' },
+                { category_id: 7, category_name: 'Divertissement' },
+                { category_id: 8, category_name: 'Documentaires' },
+                { category_id: 9, category_name: 'Musique' },
+                { category_id: 10, category_name: 'Actualités' }
+            ];
+            
+            channels = [
+                // Toutes les chaînes sont premium maintenant
+                { name: 'Satbox Premium', stream_id: 101, stream_icon: '' },
+                { name: 'Satbox Sport', stream_id: 102, stream_icon: '' },
+                { name: 'Satbox Cinéma', stream_id: 103, stream_icon: '' },
+                { name: 'Satbox Series', stream_id: 104, stream_icon: '' },
+                { name: 'Satbox Family', stream_id: 105, stream_icon: '' },
+                { name: 'Satbox Décalé', stream_id: 106, stream_icon: '' },
+                { name: 'Satbox Action', stream_id: 107, stream_icon: '' },
+                { name: 'Satbox Comedy', stream_id: 108, stream_icon: '' },
+                { name: 'Satbox Drama', stream_id: 109, stream_icon: '' },
+                { name: 'Satbox Thriller', stream_id: 110, stream_icon: '' },
+                { name: 'Canal+', stream_id: 111, stream_icon: '' },
+                { name: 'Canal+ Sport', stream_id: 112, stream_icon: '' },
+                { name: 'Canal+ Cinéma', stream_id: 113, stream_icon: '' },
+                { name: 'Canal+ Series', stream_id: 114, stream_icon: '' },
+                { name: 'Canal+ Family', stream_id: 115, stream_icon: '' },
+                { name: 'Canal+ Décalé', stream_id: 116, stream_icon: '' },
+                { name: 'Canal+ Grand Écran', stream_id: 117, stream_icon: '' },
+                { name: 'beIN Sports 1', stream_id: 118, stream_icon: '' },
+                { name: 'beIN Sports 2', stream_id: 119, stream_icon: '' },
+                { name: 'beIN Sports 3', stream_id: 120, stream_icon: '' },
+                { name: 'beIN Sports Max 4', stream_id: 121, stream_icon: '' },
+                { name: 'beIN Sports Max 5', stream_id: 122, stream_icon: '' },
+                { name: 'beIN Sports Max 6', stream_id: 123, stream_icon: '' },
+                { name: 'beIN Sports Max 7', stream_id: 124, stream_icon: '' },
+                { name: 'beIN Sports Max 8', stream_id: 125, stream_icon: '' },
+                { name: 'beIN Sports Max 9', stream_id: 126, stream_icon: '' },
+                { name: 'beIN Sports Max 10', stream_id: 127, stream_icon: '' },
+                { name: 'RMC Sport 1', stream_id: 128, stream_icon: '' },
+                { name: 'RMC Sport 2', stream_id: 129, stream_icon: '' },
+                { name: 'RMC Sport 3', stream_id: 130, stream_icon: '' },
+                { name: 'RMC Sport 4', stream_id: 131, stream_icon: '' },
+                { name: 'Eurosport 1', stream_id: 132, stream_icon: '' },
+                { name: 'Eurosport 2', stream_id: 133, stream_icon: '' },
+                { name: 'Netflix Originals', stream_id: 134, stream_icon: '' },
+                { name: 'Amazon Prime', stream_id: 135, stream_icon: '' },
+                { name: 'Disney+', stream_id: 136, stream_icon: '' },
+                { name: 'HBO Max', stream_id: 137, stream_icon: '' },
+                { name: 'Starz', stream_id: 138, stream_icon: '' },
+                { name: 'Showtime', stream_id: 139, stream_icon: '' },
+                { name: 'Sky Sports', stream_id: 140, stream_icon: '' },
+                { name: 'NBA TV', stream_id: 141, stream_icon: '' },
+                { name: 'NFL Network', stream_id: 142, stream_icon: '' },
+                { name: 'MLB Network', stream_id: 143, stream_icon: '' },
+                { name: 'UFC TV', stream_id: 144, stream_icon: '' },
+                { name: 'Fight Sports', stream_id: 145, stream_icon: '' },
+                { name: 'ESPN', stream_id: 146, stream_icon: '' },
+                { name: 'Fox Sports', stream_id: 147, stream_icon: '' },
+                { name: 'BT Sport', stream_id: 148, stream_icon: '' },
+                { name: 'DAZN', stream_id: 149, stream_icon: '' },
+                { name: 'Sky Cinema', stream_id: 150, stream_icon: '' },
+                { name: 'TNT Sports', stream_id: 151, stream_icon: '' },
+                { name: 'Premier Sports', stream_id: 152, stream_icon: '' },
+                { name: 'Eleven Sports', stream_id: 153, stream_icon: '' },
+                { name: 'Sport TV', stream_id: 154, stream_icon: '' },
+                { name: 'Viasat Sport', stream_id: 155, stream_icon: '' },
+                { name: 'Movistar Deportes', stream_id: 156, stream_icon: '' },
+                { name: 'Sky Calcio', stream_id: 157, stream_icon: '' },
+                { name: 'Rai Sport', stream_id: 158, stream_icon: '' },
+                { name: 'SuperSport', stream_id: 159, stream_icon: '' },
+                { name: 'BeIN Sports Connect', stream_id: 160, stream_icon: '' },
+                { name: 'NBA League Pass', stream_id: 161, stream_icon: '' },
+                { name: 'NFL Game Pass', stream_id: 162, stream_icon: '' },
+                { name: 'MLB.TV', stream_id: 163, stream_icon: '' },
+                { name: 'NHL.TV', stream_id: 164, stream_icon: '' },
+                { name: 'WWE Network', stream_id: 165, stream_icon: '' },
+                { name: 'F1 TV Pro', stream_id: 166, stream_icon: '' },
+                { name: 'MotoGP', stream_id: 167, stream_icon: '' },
+                { name: 'Eurosport Player', stream_id: 168, stream_icon: '' },
+                { name: 'Sky Go', stream_id: 169, stream_icon: '' },
+                { name: 'BT Sport App', stream_id: 170, stream_icon: '' },
+                { name: 'DAZN App', stream_id: 171, stream_icon: '' },
+                { name: 'ESPN+', stream_id: 172, stream_icon: '' },
+                { name: 'Peacock', stream_id: 173, stream_icon: '' },
+                { name: 'Paramount+', stream_id: 174, stream_icon: '' },
+                { name: 'Apple TV+', stream_id: 175, stream_icon: '' },
+                { name: 'Hulu', stream_id: 176, stream_icon: '' },
+                { name: 'Crunchyroll', stream_id: 177, stream_icon: '' },
+                { name: 'Funimation', stream_id: 178, stream_icon: '' },
+                { name: 'Discovery+', stream_id: 179, stream_icon: '' },
+                { name: 'BritBox', stream_id: 180, stream_icon: '' },
+                { name: 'Acorn TV', stream_id: 181, stream_icon: '' },
+                { name: 'Shudder', stream_id: 182, stream_icon: '' },
+                { name: 'Mubi', stream_id: 183, stream_icon: '' },
+                { name: 'Criterion Channel', stream_id: 184, stream_icon: '' },
+                { name: 'Arrow Player', stream_id: 185, stream_icon: '' },
+                { name: 'BFI Player', stream_id: 186, stream_icon: '' },
+                { name: 'CuriosityStream', stream_id: 187, stream_icon: '' },
+                { name: 'Magellan TV', stream_id: 188, stream_icon: '' },
+                { name: 'History Vault', stream_id: 189, stream_icon: '' },
+                { name: 'A&E Crime Central', stream_id: 190, stream_icon: '' },
+                { name: 'Lifetime Movie Club', stream_id: 191, stream_icon: '' },
+                { name: 'Hallmark Movies', stream_id: 192, stream_icon: '' },
+                { name: 'UP Faith & Family', stream_id: 193, stream_icon: '' },
+                { name: 'Dove Channel', stream_id: 194, stream_icon: '' },
+                { name: 'Pure Flix', stream_id: 195, stream_icon: '' },
+                { name: 'Faith TV', stream_id: 196, stream_icon: '' },
+                { name: 'TBN', stream_id: 197, stream_icon: '' },
+                { name: 'God TV', stream_id: 198, stream_icon: '' },
+                { name: 'Daystar', stream_id: 199, stream_icon: '' },
+                { name: 'EWTN', stream_id: 200, stream_icon: '' }
+            ];
+            
+            displayCategories();
+            displayChannels();
+        }
+    </script>
+
+    <!-- Protection contre l'inspection -->
+    <script>
+        // Bloquer le menu contextuel (clic droit)
+        document.addEventListener('contextmenu', function(e){
+            e.preventDefault();
+        });
+
+        // Bloquer quelques raccourcis DevTools / affichage source
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return;
+            }
+
+            const key = (e.key || '').toLowerCase();
+
+            // Ctrl/Cmd + U (afficher le source), Ctrl+Shift+I/J/C (DevTools),
+            // Ctrl+Shift+C (sélecteur), Ctrl+Shift+K (console sur Firefox)
+            if ((e.ctrlKey || e.metaKey) && key === 'u') { e.preventDefault(); return; }
+            if (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c' || key === 'k')) { e.preventDefault(); return; }
+            // Ctrl+Shift+S parfois
+        });
+
+        // Optionnel : empêcher la sélection et le glisser (gêne l'utilisateur)
+        document.addEventListener('selectstart', function(e){ e.preventDefault(); });
+        document.addEventListener('dragstart', function(e){ e.preventDefault(); });
+    </script>
+</body>
+</html>
